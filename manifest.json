@@ -1,0 +1,44 @@
+{
+    "manifest_version": 3,
+    "name": "DeepWiki Jumper",
+    "version": "1.0",
+    "description": "Jump between GitHub and DeepWiki pages.",
+    "permissions": [
+        "activeTab"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://github.com/*/*",
+                "https://deepwiki.com/*/*",
+                "https://deepwiki.com/search*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
+    "action": {
+        "default_icon": {
+            "16": "images/icon16.png",
+            "48": "images/icon48.png",
+            "128": "images/icon128.png"
+        }
+    },
+    "icons": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "images/deepwiki.svg",
+                "images/github.svg"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}
