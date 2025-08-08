@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "DeepWiki Jumper",
-    "version": "1.0",
+    "version": "1.1",
     "description": "Jump between GitHub and DeepWiki pages.",
     "content_scripts": [
         {
