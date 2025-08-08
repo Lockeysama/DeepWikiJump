@@ -47,7 +47,7 @@
 
                         if (deepwikiRepoLinkElement && deepwikiRepoLinkElement.href) {
                             // 如果找到了元素，就设置链接并停止观察
-                            console.log('Element found!', deepwikiRepoLinkElement.href);
+                            // console.log('Element found!', deepwikiRepoLinkElement.href);
                             const deepwikiRepoUrl = deepwikiRepoLinkElement.href;
                             const pathParts = deepwikiRepoUrl.split('/').filter(part => part.length > 0);
                             if (pathParts.length >= 4) {
@@ -62,7 +62,7 @@
                             return true; // 返回 true 表示成功
                         }
                     } catch (e) {
-                        console.error("Error processing XPath element:", e);
+                        // console.error("Error processing XPath element:", e);
                     }
                     return false; // 返回 false 表示未找到
                 };
