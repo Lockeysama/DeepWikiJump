@@ -34,34 +34,55 @@
         if (window.location.hostname === 'deepwiki.com') {
             icon.src = chrome.runtime.getURL('images/github.svg');
             button.appendChild(icon);
-            button.append('Jump to GitHub');
-            // Use a timeout because the link might be dynamically loaded
-            setTimeout(() => {
-                try {
-                    // Use XPath to find the specific link on DeepWiki search page
-                    const deepwikiRepoLinkElement = document.evaluate('//*[@id="1"]/div[1]/div/div[1]/a', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 
-                    if (deepwikiRepoLinkElement && deepwikiRepoLinkElement.href) {
-                        const deepwikiRepoUrl = deepwikiRepoLinkElement.href;
-                        const pathParts = deepwikiRepoUrl.split('/').filter(part => part.length > 0);
-                        // Assuming deepwiki.com/owner/repo
-                        if (pathParts.length >= 4) { // deepwiki.com/owner/repo -> 4 parts after split by / and filter empty
-                            const owner = pathParts[2];
-                            const repo = pathParts[3];
-                            button.href = `https://github.com/${owner}/${repo}`;
-                        } else {
-                            button.href = `https://github.com${path}`;
+            if (!path.includes('/search')) {
+                button.append('Jump to Github');
+                button.href = `https://github.com${path}`;
+            } else {
+                button.append('Jump to ...');
+                const findAndSetLink = () => {
+                    try {
+                        const xpath = '//*[@id="1"]/div[1]/div/div[1]/a';
+                        const deepwikiRepoLinkElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+                        if (deepwikiRepoLinkElement && deepwikiRepoLinkElement.href) {
+                            // 如果找到了元素，就设置链接并停止观察
+                            console.log('Element found!', deepwikiRepoLinkElement.href);
+                            const deepwikiRepoUrl = deepwikiRepoLinkElement.href;
+                            const pathParts = deepwikiRepoUrl.split('/').filter(part => part.length > 0);
+                            if (pathParts.length >= 4) {
+                                const owner = pathParts[2];
+                                const repo = pathParts[3];
+                                button.href = `https://github.com/${owner}/${repo}`;
+                            } else {
+                                button.href = `https://github.com${window.location.pathname}`;
+                            }
+                            button.removeChild(button.lastChild);
+                            button.append('Jump to Github');
+                            return true; // 返回 true 表示成功
                         }
-                    } else {
-                        // Fallback if element or href not found
-                        button.href = `https://github.com${path}`;
+                    } catch (e) {
+                        console.error("Error processing XPath element:", e);
                     }
-                } catch (e) {
-                    // Fallback in case of any error
-                    console.error("Error finding GitHub link:", e);
-                    button.href = `https://github.com${path}`;
+                    return false; // 返回 false 表示未找到
+                };
+
+                // 1. 立即尝试寻找一次
+                if (!findAndSetLink()) {
+                    // 2. 如果没找到，则启动一个观察者
+                    const observer = new MutationObserver((mutations, obs) => {
+                        if (findAndSetLink()) {
+                            obs.disconnect(); // 任务完成，断开观察，节省资源
+                        }
+                    });
+
+                    // 3. 配置观察者监视整个 body 的子节点变化
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
                 }
-            }, 2000); // Reduced timeout for quicker response, adjust if needed
+            }
         } else if (window.location.hostname === 'github.com') {
             icon.src = chrome.runtime.getURL('images/deepwiki.svg');
             button.appendChild(icon);
